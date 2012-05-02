@@ -1,8 +1,10 @@
-Ext.define('CustomApp', {
-    extend: 'Rally.app.App',
-    componentCls: 'app',
+				Ext.define('CustomApp',
+				{
+					extend : 'Rally.app.App',
+					componentCls : 'app',
 
-    launch: function() {					{
+					launch : function()
+					{
 						Ext.define('USReqType',
 						{
 							override : 'Rally.ui.tree.TreeItem',
@@ -45,6 +47,15 @@ Ext.define('CustomApp', {
 							autoScroll : true,
 							height : '100%',
 							items : [
+							{
+								xtype : 'rallybutton',
+								text : 'Hierarchy Settings',
+								width : 150,
+								style: {
+									marginBottom: '20px'
+								},
+								handler : this._launchHierarchySettings
+							},
 							{
 								xtype : 'rallytree',
 								childModelTypeForRecordFn : function()
@@ -99,5 +110,131 @@ Ext.define('CustomApp', {
 							}]
 
 						});
+					},
+					_launchHierarchySettings : function()
+					{ 
+						Ext.create('Rally.data.WsapiDataStore',
+						{
+							model : 'TypeDefinition',
+							autoLoad : true,
+							filters :
+							{
+								property : 'Name',
+								operator : '=',
+								value : 'Hierarchical Requirement'
+							},
+							listeners :
+							{
+								load : function(store, data)
+								{
+									var items = [];
+									var allowedValues;
+
+									Ext.each(data[0].data.Attributes, function(attr)
+									{
+										if(attr.Name === 'Requirement Type')
+										{
+											allowedValues = attr.AllowedValues;
+										}
+									}, this);
+
+									Ext.each(allowedValues, function(value)
+									{
+										var valueString = value.StringValue;
+										if(valueString.length > 0){
+											items.push(
+											{
+												xtype : 'container',
+												layout : 'hbox',
+												style :
+												{
+													paddingTop : '10px',
+													paddingLeft : '10px',
+													paddingRight : '10px'
+												},
+												items : [
+												{
+													xtype : 'rallytextfield',
+													value : valueString,
+													readOnly : true,
+													itemId : valueString,
+													style :
+													{
+														marginRight : '10px'
+													}
+												},
+												{
+													xtype : 'rallybutton',
+													text : 'Remove',
+													value : valueString,
+													width: 60,
+													handler : Ext.bind(function(button)
+													{
+														if(button.getText() === 'Remove')
+														{
+															//                                                    this.up('#window').down('#'
+															// + valueString).setDisabled(true);
+															button.setText('Add');
+														}
+														else
+														{
+															//                                                    this.up('#window').down('#'
+															// + valueString).setDisabled(false);
+															button.setText('Remove');
+														}
+													}, this)
+												}]
+											});
+											}
+										}, this);
+
+
+									items.push(
+									{
+										xtype : 'container',
+										layout :
+										{
+											type : 'hbox',
+											pack : 'center'
+										},
+										style :
+										{
+											paddingTop : '15px'
+										},
+										items : [
+										{
+											xtype : 'rallybutton',
+											text : 'Save',
+											width: 60,
+											handler : Ext.bind(function(button)
+											{
+												var buttons = this.query('.x-btn');
+												var valueButtons = Ext.Array.slice(buttons, 0, buttons.length - 2);
+
+												Ext.each(valueButtons, function(value)
+												{
+													//get values to use on buttons with 'remove' text
+												});
+
+												//save as pref
+												console.log("Save me as a pref!");
+											}, this)
+										}]
+									});
+
+									Ext.create('Rally.ui.dialog.Dialog',
+									{
+										title : 'Requirement Type Hierarchy',
+										itemId : 'window',
+										closable: true,
+										modal: false,
+										height : 425,
+										width : 300,
+										items : items
+									}).show();
+								},
+								scope : this
+							}
+						});
 					}
-});
+				}
