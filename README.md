@@ -6,4 +6,4 @@ See a screencast here: http://www.screencast.com/t/BA5NxLcBpa
 
 ## License
 
-AppTemplate is released under the MIT license.  See the file LICENSE for the full text.
+Requirements Hierarchy Tree is released under the MIT license.  See the file LICENSE for the full text.
